@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.demo.baseinfoMgt.mapper.BaseInfoMgtMapper">
+	<select id="getProgInfo" resultType="com.example.demo.baseinfoMgt.vo.ProgInfoVO">
+	/* 매퍼ID: getProgInfo */
+	SELECT 
+		IC_CODE, PRG_CODE, HIGH_PRG_CODE, PRG_NM, PRG_NOTE 
+	FROM 
+		BASE_PROGINFO
+	ORDER BY IC_CODE ASC
+	</select>
+	
+	<select id="getProgInfoMap" resultType="map">
+	   SELECT 
+	      A.PRG_CODE AS "prgCode", 
+	      A.PRG_NM AS "prgNm", 
+	      A.HIGH_PRG_CODE AS "highPrgCode", 
+	      B.PRG_NM AS "highPrgNm"
+	    FROM 
+	      BASE_PROGINFO A
+	      LEFT JOIN BASE_PROGINFO B ON A.HIGH_PRG_CODE = B.PRG_CODE
+	</select>
+	
+	<insert id="insertTest" parameterType="com.example.demo.baseinfoMgt.vo.ProgInfoVO">
+		INSERT INTO BASE_PROGINFO 
+			(IC_CODE, PRG_CODE, HIGH_PRG_CODE, PRG_NM, PRG_NOTE)
+		VALUES(
+			#{icCode}, #{prgCode}, #{highPrgCode}, #{prgNm}, #{prgNote}
+		)
+	</insert>
+
+	<update id="updateTest" parameterType="com.example.demo.baseinfoMgt.vo.ProgInfoVO">
+		UPDATE
+			BASE_PROGINFO
+		SET
+			PRG_NM = #{prgNm}, 
+			PRG_NOTE = #{prgNote}
+		WHERE 1 = 1
+		AND IC_CODE = #{icCode} 
+		AND PRG_CODE = #{prgCode}
+		AND HIGH_PRG_CODE = #{highPrgCode}
+	</update>
+
+	<delete id="deleteTest" parameterType="com.example.demo.baseinfoMgt.vo.ProgInfoVO">
+		DELETE FROM 
+			BASE_PROGINFO 
+		WHERE 1 = 1 
+		AND IC_CODE = #{icCode} 
+		AND PRG_CODE = #{prgCode} 
+		AND HIGH_PRG_CODE = #{highPrgCode}
+	</delete>
+	
+	<select id="getMenuInfoMap" resultType="map">
+		SELECT
+			AA.PRG_CODE ,
+			COALESCE(TO_CHAR(AA.HIGH_PRG_CODE), 'null') AS HIGH_PRG_CODE,
+			AA.PRG_NM ,
+			AA.MENU_DPH ,
+			AA.BTN_SEARCH ,
+			AA.BTN_ADD ,
+			AA.BTN_DELET ,
+			AA.BTN_STRG ,
+			AA.BTN_EXCEL ,
+			AA.BTN_PRT ,
+			DECODE(BB.PRG_ID, NULL, 'N', 'Y') IS_FAV
+		FROM
+			BASE_PROGINFO AA
+		LEFT OUTER JOIN (
+			SELECT
+				BB.IC_CODE ,
+				BB.PRG_ID
+			FROM
+				BASE_BKMRK BB
+			WHERE 1 = 1
+				AND BB.IC_CODE = '094'
+				AND BB.WORKER_NO = '1999' ) BB ON AA.IC_CODE = BB.IC_CODE
+				AND AA.PRG_CODE = BB.PRG_ID
+		WHERE
+			AA.USE_YN = 'Y'
+			AND AA.IC_CODE = '094'
+			AND ( CASE
+				'1' WHEN '1' THEN AA.ACC1
+				WHEN '2' THEN AA.ACC2
+				WHEN '3' THEN AA.ACC3
+				WHEN '4' THEN AA.ACC4
+				WHEN '5' THEN AA.ACC5
+				WHEN '6' THEN AA.ACC6
+				WHEN '7' THEN AA.ACC7
+				WHEN '8' THEN AA.ACC8
+				WHEN '9' THEN AA.ACC9
+				WHEN '10' THEN AA.ACC10
+				ELSE '1'
+			END ) = ( CASE
+				WHEN '1' > 10 THEN '1'
+				ELSE 'Y'
+			END )
+		ORDER BY
+			AA.ORDR 
+		ASC
+	</select>
+</mapper>
